@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const { authRouter } = require("./routes/auth.api");
+const { sendResponse } = require("./helpers");
 
 const PORT = 3000;
 
@@ -9,8 +11,37 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/", (req, res) => {
-  res.send("Hello World");
+app.use("/", authRouter);
+
+// catch 404, forward to error handler
+app.use((req, res, next) => {
+  const err = new Error("Not Found");
+  err.statusCode = 404;
+  next(err);
+});
+
+// Initialize Error Handling
+app.use((err, req, res, next) => {
+  console.log("ERROR: ", err);
+  if (err.isOperational) {
+    return sendResponse(
+      res,
+      err.statusCode ? err.statusCode : 500,
+      false,
+      null,
+      err.errorType,
+      err.message
+    );
+  } else {
+    return sendResponse(
+      res,
+      err.statusCode ? err.statusCode : 500,
+      false,
+      null,
+      "Internal Server Error",
+      err.message
+    );
+  }
 });
 
 app.listen(PORT, () => {
