@@ -1,5 +1,7 @@
 "use strict";
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { TOKEN_PRIVATE_KEY } = process.env;
 
 const utilHelpers = {
   sendResponse(res, status, success, data, errors, message) {
@@ -24,7 +26,7 @@ const utilHelpers = {
     }
   },
   generateToken(userId) {
-    const token = jwt.sign({ userId }, "secret", {
+    const token = jwt.sign({ userId }, TOKEN_PRIVATE_KEY, {
       expiresIn: "24h",
     });
     console.log("TOKEN: ", token);
